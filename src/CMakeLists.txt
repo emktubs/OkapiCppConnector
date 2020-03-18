@@ -20,10 +20,13 @@ add_library(okapi-connector SHARED OkapiConnector.cpp)
 # link all the libraries needed
 target_link_libraries(okapi-connector ${Casablanca_LIBRARIES})
 
-add_executable(okapi-connector-test OkapiConnectorTest.cpp)
-target_link_libraries(okapi-connector-test okapi-connector)
+# add_executable(okapi-connector-test OkapiConnectorTest.cpp)
+# target_link_libraries(okapi-connector-test okapi-connector)
 
 # Install the libraries into the lib directory and executrables to bin
-install(TARGETS okapi-connector okapi-connector-test
+# install(TARGETS okapi-connector okapi-connector-test
+install(TARGETS okapi-connector
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
+      
+add_subdirectory(tle2passes)
