@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
  
   // User input for authentication
   // Here you add your username (should be an e-mail address):
-  string username = "eriklein@tu-braunschweig.de";
+  string username = "<username>";
   // Here you add your password:
   string password = "<password>";
   // Correct URL and port for the v2020.01 release
