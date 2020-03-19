@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <libnova/julian_day.h>
 
 using std::cout;
 using std::endl;
@@ -77,6 +78,18 @@ void readFilesFromDir(vector< string >& filenames, string dir_str)
         perror ("");
         return;
     }
+}
+
+void datetime2jd(double& jd, double sec, int year, int mon, int mday, int hour, int min)
+{
+  struct ln_date date;
+  date.years = year;
+  date.months = mon;
+  date.days = mday;
+  date.hours = hour;
+  date.minutes = min;
+  date.seconds = sec;
+  jd = ln_get_julian_day(&date);
 }
 
 void readTLE(vector< string >& tle, string tle_file) 
