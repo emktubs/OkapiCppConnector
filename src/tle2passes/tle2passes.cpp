@@ -80,7 +80,7 @@ void readFilesFromDir(vector< string >& filenames, string dir_str)
     }
 }
 
-void datetime2jd(double& jd, double sec, int year, int mon, int mday, int hour, int min)
+void datetime2mjd(double& jd, double sec, int year, int mon, int mday, int hour, int min)
 {
   struct ln_date date;
   date.years = year;
@@ -89,7 +89,7 @@ void datetime2jd(double& jd, double sec, int year, int mon, int mday, int hour, 
   date.hours = hour;
   date.minutes = min;
   date.seconds = sec;
-  jd = ln_get_julian_day(&date);
+  jd = ln_get_julian_day(&date)-2400000.5;
 }
 
 void readTLE(vector< string >& tle, string tle_file) 
@@ -166,6 +166,17 @@ OkapiConnector::CompleteResult tle2okapiResult(OkapiConnector connector, string 
 //     }
 //     cout << sgp4SimpleResult.body.serialize() << endl;
 //   }
+
+//   OkapiConnector::CompleteResult sgp4SummaryResult = retrieveResult(connector, baseUrl, "/predict-passes/sgp4/summary/results/", requestIdPassPredictionSgp4);
+//   if (sgp4SummaryResult.error.code != 200 && sgp4SummaryResult.error.code != 202)
+//   {
+//     cout << "Response failed with status: " << sgp4SummaryResult.error.status << endl;
+//     cout << sgp4SummaryResult.error.message << endl;
+//   }
+//   else
+//   {
+//     cout << sgp4SummaryResult.body.serialize() << endl;
+//   }
   
   return sgp4SimpleResult;
 }
@@ -179,6 +190,10 @@ int main(int argc, char* argv[])
 {
   // initializing communication
   OkapiConnector connector;
+  
+  //some storage variables
+  vector< string > tle_vec;
+  vector< string > files_vec;
  
   // User input for authentication
   // Here you add your username (should be an e-mail address):
@@ -221,18 +236,32 @@ int main(int argc, char* argv[])
   //  string start = "2018-08-07T17:30:00.000Z";
   //  string end =   "2018-08-07T17:31:00.000Z";
 //   string tlePassPrediction = "1 25544U 98067A   18218.76369510  .00001449  00000-0  29472-4 0  9993\n2 25544  51.6423 126.6422 0005481  33.3092  62.9075 15.53806849126382";
-
-
-//   OkapiConnector::CompleteResult sgp4SummaryResult = retrieveResult(connector, baseUrl, "/predict-passes/sgp4/summary/results/", requestIdPassPredictionSgp4);
-//   if (sgp4SummaryResult.error.code != 200 && sgp4SummaryResult.error.code != 202)
-//   {
-//     cout << "Response failed with status: " << sgp4SummaryResult.error.status << endl;
-//     cout << sgp4SummaryResult.error.message << endl;
-//   }
-//   else
-//   {
-//     cout << sgp4SummaryResult.body.serialize() << endl;
-//   }
+  
+  readFilesFromDir(files_vec, string("../tle/"));
+  vector< string > tmp_tle;
+  if( !files_vec.empty() ) {
+    for( vector<string>::iterator files_it = files_vec.begin() ; files_it != files_vec.end(); ++files_it )
+    {
+      readTLE(tmp_tle, *files_it);
+      if( !tmp_tle.empty() ) {
+        for( vector<string>::iterator tle_it = tmp_tle.begin() ; tle_it != tmp_tle.end(); ++tle_it )
+        {
+          tle_vec.push_back(*tle_it);
+        }
+      }
+    }
+  }
+  else {
+    cout << "No TLE files found" << endl;
+    return -1;
+  }
+  
+  if( !tle_vec.empty() ) {
+    for(vector<string>::iterator tle_it = tmp_tle.begin() ; tle_it != tmp_tle.end(); ++tle_it )
+    {
+      cout << "[Processing TLE]" << endl << *tle_it << endl;
+    }
+  }
   
   cout << "[Predict passes] - completed" << endl;
 
