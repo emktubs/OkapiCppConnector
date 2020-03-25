@@ -183,7 +183,21 @@ OkapiConnector::CompleteResult tle2okapiResult(OkapiConnector connector, string 
 
 void okapiResult2PassFile(OkapiConnector::CompleteResult okares, string filename, string id)
 {
-  
+  auto DataArray = okares.body.as_array();
+  for (auto Iter = DataArray.begin(); Iter != DataArray.end(); ++Iter)
+  { 
+    cout << "[New Pass]" << endl;
+    auto& data = *Iter;
+    auto dataObj = data.as_object();
+
+    for (auto iterInner = dataObj.cbegin(); iterInner != dataObj.cend(); ++iterInner)
+    {
+      auto &propertyName = iterInner->first;
+  //             auto &propertyValue = iterInner->second;
+
+      cout << "Property: " << propertyName << endl;
+    }
+  }
 }
 
 int main(int argc, char* argv[])
@@ -194,12 +208,14 @@ int main(int argc, char* argv[])
   //some storage variables
   vector< string > tle_vec;
   vector< string > files_vec;
+  string output_file("../output.dat");
  
   // User input for authentication
   std::ifstream ifile("../okapi_acc", std::ifstream::in);
   string username, password;
   getline( ifile, username );
   getline( ifile, password );
+  ifile.close();
   // Here you add your username (should be an e-mail address):
 //   string username = "";
   // Here you add your password:
@@ -226,20 +242,13 @@ int main(int argc, char* argv[])
   // PASS PREDICTION
   cout << "[Predict passes] - started" << endl;
 // user input PASS PREDICTION
-  cout << "Please enter altitude:" << endl;
-  cin >> altitude;
-  cout << "Please enter longitude:" << endl;
-  cin >> longitude;
-  cout << "Please enter latitude:" << endl;
-  cin >> latitude;
-  cout << "Please enter start time of prediction :" << endl;
-  cout << "Example format: 2018-08-06T18:19:44.256628Z" << endl;
-  cin >> start;
-  cout << "Please enter end time of prediction (same format as start time):" << endl;
-  cin >> endrt;
-  //  string start = "2018-08-07T17:30:00.000Z";
-  //  string end =   "2018-08-07T17:31:00.000Z";
-//   string tlePassPrediction = "1 25544U 98067A   18218.76369510  .00001449  00000-0  29472-4 0  9993\n2 25544  51.6423 126.6422 0005481  33.3092  62.9075 15.53806849126382";
+  std::ifstream obsinf("../obsinf", std::ifstream::in);
+  obsinf >> altitude;
+  obsinf >> longitude;
+  obsinf >> latitude;
+  obsinf >> start;
+  obsinf >> endrt;
+  obsinf.close();
   
   readFilesFromDir(files_vec, string("../tle"));
   vector< string > tmp_tle;
@@ -264,6 +273,13 @@ int main(int argc, char* argv[])
     for(vector<string>::iterator tle_it = tmp_tle.begin() ; tle_it != tmp_tle.end(); ++tle_it )
     {
       cout << "[Processing TLE]" << endl << *tle_it << endl;
+      string id = tle_it->substr(2,5);
+      cout << "[Extracted ID] - " << id << endl;
+      
+      OkapiConnector::CompleteResult result = tle2okapiResult(connector, *tle_it);
+      
+      okapiResult2PassFile(result, output_file, id);
+      
     }
   }
   
