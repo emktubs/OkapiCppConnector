@@ -196,13 +196,17 @@ int main(int argc, char* argv[])
   vector< string > files_vec;
  
   // User input for authentication
+  std::ifstream ifile("../okapi_acc", std::ifstream::in);
+  string username, password;
+  getline( ifile, username );
+  getline( ifile, password );
   // Here you add your username (should be an e-mail address):
-  string username = "<username>";
+//   string username = "";
   // Here you add your password:
-  string password = "<password>";
+//   string password = "";
   // Correct URL and port for the v2020.01 release
   string baseUrl = "http://okapi.ddns.net:34568";
-
+  
 	// Authentication with Auth0 to retrieve the access token
   cout << "[Authentication] - started" << endl;
 	OkapiConnector::CompleteResult initResult
@@ -229,7 +233,7 @@ int main(int argc, char* argv[])
   cout << "Please enter latitude:" << endl;
   cin >> latitude;
   cout << "Please enter start time of prediction :" << endl;
-  cout << "Example format: 2018-08-06T18:19:44.256628Z";
+  cout << "Example format: 2018-08-06T18:19:44.256628Z" << endl;
   cin >> start;
   cout << "Please enter end time of prediction (same format as start time):" << endl;
   cin >> endrt;
@@ -237,7 +241,7 @@ int main(int argc, char* argv[])
   //  string end =   "2018-08-07T17:31:00.000Z";
 //   string tlePassPrediction = "1 25544U 98067A   18218.76369510  .00001449  00000-0  29472-4 0  9993\n2 25544  51.6423 126.6422 0005481  33.3092  62.9075 15.53806849126382";
   
-  readFilesFromDir(files_vec, string("../tle/"));
+  readFilesFromDir(files_vec, string("../tle"));
   vector< string > tmp_tle;
   if( !files_vec.empty() ) {
     for( vector<string>::iterator files_it = files_vec.begin() ; files_it != files_vec.end(); ++files_it )
