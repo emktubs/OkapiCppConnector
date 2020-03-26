@@ -15,19 +15,19 @@ To build the library, create a `build` directory in your main folder, change int
 For more information on the API and more examples, visit www.okapiorbits.space/documentation/
 
 ### Use the TLE to Passes executable
-Follow the above instructions to build the executable. Further add your observer information in the following order:
+Follow the above instructions to build the executable. Further add your observer information in the following order to file "obsinf":
 - altitude
 - longitude
 - latitude
 - start time
 - end time
 
-Have a look into the "obsinf" file for an example. The format of the time stamps have to be of the following:
+Have a look into the existing "obsinf" file for an example. The format of the time stamps have to be of the following:
 - YYYY-MM-DDThh:mm:ss.sss[...]Z
 
 The precision of the seconds is indefinite.
 
-Further, to be able to access the service of OKAPI leave your sign in information in a file in the source directory and name it "okapi_acc" in the order
+Further, to be able to access the service of OKAPI leave your sign in information in a file in the source directory and name it "okapi_acc". Username and password in the following order
 - username
 - password
 
