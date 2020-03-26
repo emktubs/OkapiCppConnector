@@ -6,7 +6,7 @@ Provides basic routines to init your OKAPI account as well as send requests and 
 * CMake: we used Verison 3.2
 * a text editor or IDE of your choice
 * a terminal
-* libraries: boost_system, boost_thread, boost_chrono, crypto, ssl and cpprest
+* libraries: boost_system, boost_thread, boost_chrono, crypto, ssl, cpprest and libnova
 * this was tested with Ubuntu 18.04
 
 ### The build process
