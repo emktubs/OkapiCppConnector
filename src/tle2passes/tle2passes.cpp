@@ -80,17 +80,27 @@ void readFilesFromDir(vector< string >& filenames, string dir_str)
     }
 }
 
-void datetime2mjd(double& jd, double sec, int year, int mon, int mday, int hour, int min)
+double datetime2mjd(string fitstime)
 {
+  int year, month, day, hour, minute;
+  double seconds;
+  std::replace(fitstime.begin(), fitstime.end(), ':', ' ');
+  std::replace(fitstime.begin(), fitstime.end(), 'T', ' ');
+  std::replace(fitstime.begin(), fitstime.end(), '-', ' ');
+  std::stringstream strstr(fitstime);
+  strstr >> year >> month >> day >> hour >> minute >> seconds;
+  
   struct ln_date date;
   date.years = year;
-  date.months = mon;
-  date.days = mday;
+  date.months = month;
+  date.days = day;
   date.hours = hour;
-  date.minutes = min;
-  date.seconds = sec;
-  jd = ln_get_julian_day(&date)-2400000.5;
+  date.minutes = minute;
+  date.seconds = seconds;
+  return ln_get_julian_day(&date)-2400000.5;
 }
+
+
 
 void readTLE(vector< string >& tle, string tle_file) 
 {
@@ -181,23 +191,57 @@ OkapiConnector::CompleteResult tle2okapiResult(OkapiConnector connector, string 
   return sgp4SimpleResult;
 }
 
+double fix_azimuth(double azimuth)
+{
+  if( azimuth<0 )
+    return azimuth+360;
+  else
+    return azimuth;
+}
+
 void okapiResult2PassFile(OkapiConnector::CompleteResult okares, string filename, string id)
 {
   auto DataArray = okares.body.as_array();
+  std::ofstream ofile(filename, std::ofstream::out | std::ofstream::app);
   for (auto Iter = DataArray.begin(); Iter != DataArray.end(); ++Iter)
   { 
     cout << "[New Pass]" << endl;
     auto& data = *Iter;
-    auto dataObj = data.as_object();
+    
+    auto azimuths_ptr = data.at(U("azimuths")).as_array();
+    auto elevations_ptr = data.at(U("elevations")).as_array();
+    auto in_sun_lights_ptr = data.at(U("in_sun_lights")).as_array();
+    auto ranges_ptr = data.at(U("ranges")).as_array();
+    auto time_stamps_ptr = data.at(U("time_stamps")).as_array();
 
-    for (auto iterInner = dataObj.cbegin(); iterInner != dataObj.cend(); ++iterInner)
+    auto azimuths_iter = azimuths_ptr.cbegin();
+    auto elevations_iter = elevations_ptr.cbegin();
+    auto in_sun_lights_iter = in_sun_lights_ptr.cbegin();
+    auto ranges_iter = ranges_ptr.cbegin();
+    auto time_stamps_iter = time_stamps_ptr.cbegin();
+    
+    while ( azimuths_iter != azimuths_ptr.cend() )
     {
-      auto &propertyName = iterInner->first;
-  //             auto &propertyValue = iterInner->second;
-
-      cout << "Property: " << propertyName << endl;
+      if( in_sun_lights_iter->as_integer()==1 ) {
+        ofile << id << '\t'
+              << std::fixed << std::setprecision(8)
+              << datetime2mjd(time_stamps_iter->as_string()) << '\t'
+              << std::fixed << std::setprecision(3)
+              << fix_azimuth(azimuths_iter->as_double()) << '\t'
+              << elevations_iter->as_double() << '\t'
+              << ranges_iter->as_double() << '\t'
+              << "0.0\t0.0\t0.0" 
+              << endl;
+      }
+      
+      azimuths_iter++;
+      elevations_iter++;
+      in_sun_lights_iter++;
+      ranges_iter++;
+      time_stamps_iter++;
     }
   }
+  ofile.close();
 }
 
 int main(int argc, char* argv[])
