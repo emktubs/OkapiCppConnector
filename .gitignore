@@ -39,3 +39,4 @@ lib/
 build/
 .directory
 okapi_acc
+output.dat
