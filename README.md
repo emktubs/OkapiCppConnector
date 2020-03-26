@@ -33,4 +33,9 @@ Further, to be able to access the service of OKAPI leave your sign in informatio
 
 Eventually leave the TLE, for which you want your passes to be calculated in the "tle" folder. Give the input files the ending ".tle". Any file that has this ending will be checked for TLEs. Any TLE that is found will be requested for the given time window.
 
+Execute the routine via
+```
+LD_LIBRARY_PATH=../lib ./tle2passes
+```
+
 After finishing you'll find your passes written to "output.dat".
